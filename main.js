@@ -1,3 +1,7 @@
+if (!localStorage.getItem('highscore')) localStorage.setItem('highscore', '0');
+const highscore = document.querySelector('.highscore');
+highscore.innerHTML = `Highscore: ${localStorage.getItem('highscore')}`
+
 const {
     Engine,
     Render,
@@ -11,8 +15,6 @@ const {
     MouseConstraint,
     Query,
 } = Matter;
-
-// let score = 0;
 
 // Render Intial Things
 const engine = Engine.create();
@@ -71,7 +73,6 @@ scoreDiv.innerText = "0";
 parentDiv.appendChild(render.canvas);
 parentDiv.appendChild(scoreDiv);
 document.body.appendChild(parentDiv);
-let score = scoreDiv.innerText;
 
 // Key Controls
 document.addEventListener("keydown", (e) => {
@@ -113,19 +114,18 @@ Events.on(engine, "collisionStart", (e) => {
     for (const pair of e.pairs) {
         const bodyA = pair.bodyA;
         const bodyB = pair.bodyB;
-        if (bodyA.label !== bodyB.label) {
-            // Detect Game Over
+        if (bodyA.label !== bodyB.label) { // Detect Game Over
             if (
                 (bodyA === heightLimit || bodyB === heightLimit) &&
                 (bodyA.position.y > heightLimit.position.y ||
                     bodyB.position.y > heightLimit.position.y)
             ) {
-                console.log(
-                    "Object passed from the bottom through heightLimit"
-                );
+                alert(`Game Over\n\nYour score was ${scoreDiv.innerHTML}`);
+                const highscore = Number(localStorage.getItem('highscore'));
+                if (highscore < Number(scoreDiv.innerHTML))
+                    localStorage.setItem('highscore', scoreDiv.innerHTML)
             }
-        } else {
-            // Merge Fruits
+        } else { // Merge Fruits
             const collisionPointX = (bodyA.position.x + bodyB.position.x) / 2;
             const collisionPointY = (bodyA.position.y + bodyB.position.y) / 2;
             if (bodyA.label === "cherry" && bodyB.label === "cherry") {
@@ -139,7 +139,6 @@ Events.on(engine, "collisionStart", (e) => {
                     )
                 );
                 scoreDiv.innerHTML = (Number(scoreDiv.innerHTML) + 2).toString();
-                // scoreDiv.innerHTML = (Number(scoreDiv.innerHTML) + 2).toString();
             } else if (
                 bodyA.label === "strawberry" &&
                 bodyB.label === "strawberry"
